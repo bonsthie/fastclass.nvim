@@ -2,11 +2,11 @@ local M = {}
 
 local config = require('fastclass').config
 
-local dummy_class_template = require("fastclass.assets.Dummyh")
-local dummy_class_template_func = require("fastclass.assets.Dummyc")
+local dummyh = require("fastclass.assets.Dummyh").generate_dummy_class()
+local dummyc = require("fastclass.assets.Dummyc")
 
 local log_file = require("fastclass.assets.log")
-local log_file_name = "log" .. config.header_extension
+local log_file_name = "log"
 
 local function exec_formatting(file_path)
     local original_buf = vim.api.nvim_get_current_buf()
@@ -71,7 +71,7 @@ function M.create_file(class_name, content, extension)
 	local new_class_content = content
 		:gsub("DUMMY", class_name:upper())
 		:gsub("Dummy", class_name)
-		:gsub(".h", config.header_extension)
+		-- :gsub(".h", config.header_extension)
 
 	local new_file_path = string.format("%s/%s" .. extension, current_dir, class_name)
 
@@ -91,7 +91,7 @@ end
 
 local create_log = function()
 	local current_dir = get_current_dir()
-	local log_file_path = string.format("%s/%s", current_dir, log_file_name)
+	local log_file_path = string.format("%s/%s", current_dir, log_file_name .. config.header_extension)
 
     local file_info = vim.loop.fs_stat(log_file_path)
     if file_info then
@@ -105,8 +105,8 @@ end
 vim.api.nvim_create_user_command(
 	"Fastclass",
 	function(opts)
-		M.create_file(opts.args, dummy_class_template, config.header_extension)
-		M.create_file(opts.args, dummy_class_template_func, ".cpp")
+		M.create_file(opts.args, dummyh, config.header_extension)
+		M.create_file(opts.args, dummyc, ".cpp")
 		create_log()
 		oil_save()
 	end,
